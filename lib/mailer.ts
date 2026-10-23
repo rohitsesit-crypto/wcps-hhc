@@ -147,7 +147,6 @@ export type ReportMail = {
   innerProfile: string;
   dimensions: { label: string; score: number; level: string }[];
   attachment: { filename: string; content: Buffer };
-  additionalAttachments?: { filename: string; content: Buffer }[];
   volunteer?: string;
 };
 
@@ -194,8 +193,8 @@ function buildHtml(mail: ReportMail): string {
           </table>
 
           <p style="margin:22px 0 0;font-size:14px;line-height:1.6;color:#3d566e;">
-            Your personalised ${mail.additionalAttachments?.length ? 'reports are' : 'report is'} attached as
-            <strong>PDF${mail.additionalAttachments?.length ? 's' : ''}</strong>.
+            Your full personalised report is attached as a
+            <strong>PDF</strong>.
             This score describes factors that may influence long-term wealth creation. It is not a prediction or guarantee.
           </p>
           ${mail.volunteer ? `<p style="margin:14px 0 0;font-size:12px;color:#7a8ea1;">Referral: ${mail.volunteer}</p>` : ""}
@@ -221,7 +220,6 @@ export async function sendReportEmail(mail: ReportMail): Promise<void> {
   const message = {
     from,
     to: mail.to,
-    cc: "rohityerunkar1508@gmail.com",
     replyTo: env("MAIL_REPLY_TO") || env("SMTP_USER"),
     subject: `Your Wealth Creation Potential Score report — ${mail.wcpsDisplay}`,
     html: buildHtml(mail),
@@ -230,12 +228,14 @@ export async function sendReportEmail(mail: ReportMail): Promise<void> {
       `Your Wealth Creation Potential Score is ${mail.wcpsDisplay}.\n` +
       `Inner profile: ${mail.innerProfile}\n\n` +
       `${mail.interpretation}\n\n` +
-      `Your personalised ${mail.additionalAttachments?.length ? 'reports are' : 'report is'} attached.\n\nHappiness Holistic Clinic | heal@drvrushali.com | +91 77383 75783`,
-    attachments: [mail.attachment, ...(mail.additionalAttachments ?? [])].map(attachment => ({
-      filename: attachment.filename,
-      content: attachment.content,
-      contentType: "application/pdf",
-    })),
+      `Your full report is attached.\n\nHappiness Holistic Clinic | heal@drvrushali.com | +91 77383 75783`,
+    attachments: [
+      {
+        filename: mail.attachment.filename,
+        content: mail.attachment.content,
+        contentType: "application/pdf",
+      },
+    ],
   };
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
