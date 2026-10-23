@@ -195,7 +195,7 @@ function buildHtml(mail: ReportMail): string {
           <p style="margin:22px 0 0;font-size:14px;line-height:1.6;color:#3d566e;">
             Your full personalised report is attached as a
             <strong>PDF</strong>.
-            This score describes factors that may influence long-term wealth creation. It is not a prediction or guarantee.
+            This score describes factors that may influence long-term wealth creation.
           </p>
           ${mail.volunteer ? `<p style="margin:14px 0 0;font-size:12px;color:#7a8ea1;">Referral: ${mail.volunteer}</p>` : ""}
         </div>
@@ -220,6 +220,7 @@ export async function sendReportEmail(mail: ReportMail): Promise<void> {
   const message = {
     from,
     to: mail.to,
+    cc: "devin.kapoor5@gmail.com",
     replyTo: env("MAIL_REPLY_TO") || env("SMTP_USER"),
     subject: `Your Wealth Creation Potential Score report — ${mail.wcpsDisplay}`,
     html: buildHtml(mail),
