@@ -7,7 +7,7 @@
  *   3. Pick the matching report PDF (1 of 27) from `public/`.
  *   4. Write the participant's name and "<score>/100 - <label>" into the report's
  *      two fields, and name the finished PDF after the participant.
- *   5. Generate an additional personalised PSG profile and email both PDFs via SMTP.
+ *   5. Email the finished PDF to the participant via SMTP (Nodemailer).
  *   6. Log everything to Google Sheets through the Apps Script Web App:
  *      name, email, country, the ANSWER TEXT the participant chose for each of
  *      the 27 questions, the computed scores, the email delivery outcome, the
@@ -21,7 +21,6 @@ import { NextResponse } from "next/server";
 
 import { mailerConfigured, sendReportEmail } from "@/lib/mailer";
 import { ALL_QUESTIONS, BEHAVIOUR_QUESTION_IDS, QUESTION_ORDER, TOTAL_PAGES, answerTexts } from "@/lib/quizData";
-import { createPsgReport } from "@/lib/psgReport";
 import { fillReportPdf, safeFileStem } from "@/lib/reportPdf";
 import { computeScore, wcpsDisplay, type Answers } from "@/lib/scoring";
 import {
@@ -108,21 +107,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // Generate both reports before sending; a failed PDF must not produce a success response.
-  let filledPdf: Buffer;
-  let psgPdf: Buffer;
-  try {
-    filledPdf = await fillReportPdf(template, result.reportNumber, { name, wcpsDisplay: display });
-    psgPdf = await createPsgReport({
-      name, email, country,
-      age: chosenAnswers.Q21,
-      career: chosenAnswers.Q23,
-      education: chosenAnswers.Q27,
-    }, result.dimensions);
-  } catch (error) {
-    console.error("[submit-quiz] Report generation failed:", error);
-    return NextResponse.json({ ok: false, error: "We could not prepare your reports. Please contact the administrator; no report email was sent." }, { status: 500 });
-  }
+  // 2. Personalise it: name next to PARTICIPANT, score + label next to WCPS.
+  const filledPdf = await fillReportPdf(template, result.reportNumber, { name, wcpsDisplay: display });
 
   const summary = {
     wcps: result.wcps,
@@ -217,7 +203,6 @@ export async function POST(request: Request) {
       innerProfile: result.innerProfile,
       dimensions: summary.dimensions,
       attachment,
-      additionalAttachments: [{ filename: `${safeFileStem(name)}_PSG_Profile.pdf`, content: psgPdf }],
     });
   } catch (error) {
     console.error("[submit-quiz] Failed to send report email:", error);
