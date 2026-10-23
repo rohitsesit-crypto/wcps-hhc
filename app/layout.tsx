@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -13,39 +14,48 @@ const geistMono = Geist_Mono({
 });
 
 const title = "WCPS | Wealth Creation Potential Score";
+
 const description =
   "Discover your wealth creation potential with a 27-question assessment of your mindset, habits and life circumstances. Receive your personalised report by email.";
 
-// Set NEXT_PUBLIC_SITE_URL to your actual public HTTPS origin before building.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  "https://wcps-ses.vercel.app";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl || "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
+
   title,
   description,
   applicationName: "WCPS",
+
   icons: {
     icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
     shortcut: "/favicon.ico",
   },
+
   openGraph: {
     type: "website",
     siteName: "WCPS",
     locale: "en_US",
+    url: "/",
     title,
     description,
-    images: [{
-      url: "/wcps-share.png",
-      width: 1200,
-      height: 630,
-      alt: "WCPS — Wealth Creation Potential Score. Discover your potential through a 27-question assessment.",
-    }],
+    images: [
+      {
+        url: "/wcps.png",
+        width: 486,
+        height: 405,
+        alt: "WCPS | Wealth Creation Potential Score",
+      },
+    ],
   },
+
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title,
     description,
-    images: ["/wcps-share.png"],
+    images: ["/wcps.png"],
   },
 };
 
@@ -53,9 +63,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="min-h-full">{children}</body>
     </html>
   );
 }
- 
