@@ -431,7 +431,7 @@ export const COI_QUESTION = {
   id: "q22",
   label: "Q22",
   text: "Country where you expect to build your career or business",
-  hint: "Your selection sets your Country Opportunity Index (COI",
+  hint: "",
 };
 
 /**
