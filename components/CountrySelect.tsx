@@ -106,7 +106,7 @@ export default function CountrySelect({
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <div> <h1>This is the main line </h1></div>
+       
 
         
         {selected ? (
